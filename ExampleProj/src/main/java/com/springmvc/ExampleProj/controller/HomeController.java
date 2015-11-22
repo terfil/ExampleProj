@@ -1,6 +1,8 @@
 package com.springmvc.ExampleProj.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,6 +15,8 @@ public class HomeController {
 
 	@RequestMapping(value="/")
 	public ModelAndView test(HttpServletResponse response) throws IOException{
+		ModelAndView mv = new ModelAndView("home");
+		mv.addObject("messages", "Hello, Wei");
 		return new ModelAndView("home");
 	}
 }
