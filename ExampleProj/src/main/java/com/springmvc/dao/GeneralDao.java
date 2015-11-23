@@ -4,70 +4,71 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
-/**
- * 这个类将dao成封装成了一个操作类，从网上复制过来的。
- */
+import javax.transaction.Transactional;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+import com.springmvc.model.User;
+
 @Repository
 public class GeneralDao implements IGeneralDao {
-	/**
-	 * 这个bean里面需要注入sessionFactory，所以把这个bean写在了配置中。
-	 */
+
 	@Autowired
-	private HibernateTemplate hibernateTemplate;
+	SessionFactory sessionFactory;
 
-	public <T> T findById(Class<T> type, Serializable id) {
-		return hibernateTemplate.get(type, id);
+	@Override
+	@Transactional
+	public int insertRow(User employee) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		session.saveOrUpdate(employee);
+		tx.commit();
+		Serializable id = session.getIdentifier(employee);
+		session.close();
+		return (Integer) id;
 	}
 
-	public <T> List<T> findAll(Class<T> type) {
-		return hibernateTemplate.loadAll(type);
+	@Override
+	public List<User> getList() {
+		Session session = sessionFactory.openSession();
+		@SuppressWarnings("unchecked")
+		List<User> employeeList = session.createQuery("from User").list();
+		session.close();
+		return employeeList;
 	}
 
-	public void save(Object... entities) {
-		for (Object entity : entities) {
-			hibernateTemplate.save(entity);
-		}
+	@Override
+	public User getRowById(int id) {
+		Session session = sessionFactory.openSession();
+		User employee = (User) session.load(User.class, id);
+		return employee;
 	}
 
-	public void saveOrUpdate(Object entity) {
-		hibernateTemplate.saveOrUpdate(entity);
+	@Override
+	public int updateRow(User employee) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		session.saveOrUpdate(employee);
+		tx.commit();
+		Serializable id = session.getIdentifier(employee);
+		session.close();
+		return (Integer) id;
 	}
 
-	public void update(Object... entities) {
-		for (Object entity : entities) {
-			hibernateTemplate.update(entity);
-		}
+	@Override
+	public int deleteRow(int id) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		User employee = (User) session.load(User.class, id);
+		session.delete(employee);
+		tx.commit();
+		Serializable ids = session.getIdentifier(employee);
+		session.close();
+		return (Integer) ids;
 	}
 
-	public void delete(Object... entities) {
-		for (Object entity : entities) {
-			if (entity != null) {
-				hibernateTemplate.delete(entity);
-			}
-		}
-	}
-
-	public void deleteById(Class<?> type, Serializable id) {
-		if (id == null) {
-			return;
-		}
-		Object entity = findById(type, id);
-		if (entity == null) {
-			return;
-		}
-		delete(entity);
-	}
-
-	public void refresh(Object... entities) {
-		for (Object entity : entities) {
-			hibernateTemplate.refresh(entity);
-		}
-	}
-
-	public void flush() {
-		hibernateTemplate.flush();
-	}
 }

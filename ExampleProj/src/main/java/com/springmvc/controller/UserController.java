@@ -1,5 +1,8 @@
 package com.springmvc.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,19 +14,21 @@ import com.springmvc.service.IUserService;
 @Controller
 @RequestMapping(value="/user")
 public class UserController {
-	/**
-	 * 注入userService。
-	 * 如果userService继承了某个接口，
-	 * 这里类型必须是接口IUserService，
-	 * 不能是类UserService，不知道为什么。
-	 */
+
 	@Autowired
 	private IUserService userService;
 	
-	@RequestMapping(value="/registe", method=RequestMethod.GET)
-	public String registe() {
-		User user = new User(0, "小马云", "999");
+	@RequestMapping(value="/register", method=RequestMethod.GET)
+	public String register() {
+		User user = new User(0, "add", "999");
 		userService.register(user);
 		return "index";
+	}
+	
+	@RequestMapping(value="/list", method=RequestMethod.GET)
+	public List<User> list(){
+		List<User> l = new ArrayList<User>();
+		l = userService.list();
+		return l;
 	}
 }
